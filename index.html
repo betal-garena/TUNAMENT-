@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BETAL GARENA</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:white;font-family:Arial,sans-serif}
+header{background:#151d35;padding:18px;text-align:center;border-bottom:2px solid #00e5ff}
+header h2{margin:0;color:#00e5ff;cursor:pointer}
+header p{color:#aaa;margin:8px 0 0}
+main{max-width:650px;margin:auto;padding:15px 15px 90px}
+.card{background:#17213a;border:1px solid #293955;padding:16px;margin:12px 0;border-radius:14px}
+h3{color:#00e5ff;margin-top:0}
+button{width:100%;padding:13px;margin:6px 0;border:0;border-radius:9px;background:#00c8e8;color:#06111d;font-size:16px;font-weight:bold;cursor:pointer}
+button:active{opacity:.7}
+input,select{width:100%;padding:13px;margin:7px 0;background:#0c1427;color:white;border:1px solid #43516d;border-radius:8px;font-size:16px}
+.small{color:#aebbd2;font-size:13px;line-height:1.6}
+.coin{color:#ffd54a;font-size:25px;font-weight:bold}
+.hidden{display:none!important}
+.row{display:flex;gap:8px}
+.row button{flex:1}
+.danger{background:#ff5364;color:white}
+.green{background:#56e39f;color:#06111d}
+.yellow{background:#ffd54a;color:#111}
+.item{border-bottom:1px solid #34415b;padding:12px 0;overflow-wrap:anywhere}
+nav{position:fixed;bottom:0;left:0;width:100%;display:flex;background:#151d35;padding:7px 2px;z-index:5}
+nav button{flex:1;width:auto;font-size:12px;padding:11px 2px;margin:0 2px}
+.upibox{text-align:center;padding:12px;border:1px dashed #00e5ff;border-radius:10px;background:#0c1427}
+.qr{width:180px;height:180px;object-fit:contain;background:white;padding:4px;border-radius:8px}
+.status{padding:10px;border-radius:8px;background:#0c1427;margin:8px 0;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<header><h2 onclick="logoTap()">⚡ BETAL GARENA</h2><p>Play • Compete • Win</p></header>
+<main>
+<section id="loginPage" class="card">
+<h3>Player Login / Register</h3>
+<p class="small">नया अकाउंट बनाएँ या पुराने मोबाइल नंबर से Login करें।</p>
+<div class="row"><button type="button" onclick="setMode('login')">Login</button><button type="button" onclick="setMode('register')">Create Account</button></div>
+<div id="nameArea"><label>Player Name</label><input id="playerName" placeholder="Player Name" autocomplete="name"></div>
+<label>Mobile Number</label><input id="phone" placeholder="10 Digit Mobile Number" inputmode="numeric" maxlength="10">
+<label>Password</label><input id="password" type="password" placeholder="Password">
+<div id="confirmArea"><label>Confirm Password</label><input id="confirm" type="password" placeholder="Confirm Password"></div>
+<button id="submitBtn" type="button" onclick="loginPlayer()">Create Account</button>
+<div id="authMessage" class="status small">पहले Create Account करें। नए अकाउंट को 100 Welcome Coins मिलेंगे।</div>
+<p class="small">यह लोकल डेमो है। SMS OTP, वास्तविक भुगतान और सुरक्षित सर्वर लॉगिन शामिल नहीं हैं।</p>
+</section>
+<section id="homePage" class="hidden"><div class="card"><h3>🏆 Available Tournaments</h3><div id="tournamentList"></div></div></section>
+<section id="walletPage" class="hidden">
+<div class="card"><h3>🪙 My Wallet</h3><div id="balance" class="coin">0 Coins</div><p class="small">डेमो Coins — वास्तविक रुपये नहीं।</p></div>
+<div class="card"><h3>➕ Add Money Request</h3><div class="upibox"><div id="upiText">UPI ID</div><img id="qrImage" class="qr" alt="Payment QR"><p class="small">भुगतान से पहले UPI ID और प्राप्तकर्ता का नाम जाँचें। यह QR केवल भुगतान विवरण दिखाता है; भुगतान की पुष्टि नहीं करता।</p></div>
+<input id="amount" type="number" min="1" step="1" placeholder="Amount in ₹"><input id="utr" placeholder="Payment UTR / Reference ID"><button onclick="addMoneyRequest()">Submit Request</button></div>
+<div class="card"><h3>💸 Withdraw Coins</h3><input id="withdrawAmount" type="number" min="1" step="1" placeholder="Coins"><input id="withdrawUpi" placeholder="Your UPI ID"><button class="yellow" onclick="withdrawRequest()">Submit Withdrawal Request</button></div>
+<div class="card"><h3>Coin History</h3><div id="coinHistory"></div></div><div class="card"><h3>My Requests</h3><div id="myRequests"></div></div>
+</section>
+<section id="historyPage" class="hidden"><div class="card"><h3>📜 History</h3><div id="historyList"></div></div></section>
+<section id="profilePage" class="hidden"><div class="card"><h3>👤 My Profile</h3><div id="profileInfo"></div><button class="danger" onclick="logout()">Logout</button></div></section>
+<section id="adminPage" class="hidden">
+<div class="card"><h3>🔐 Admin Panel</h3><p class="small">यह लोकल डेमो है। पासवर्ड कोड में मौजूद है; सार्वजनिक/असली उपयोग के लिए सर्वर-आधारित एडमिन लॉगिन चाहिए।</p><button class="danger" onclick="closeAdmin()">Close Admin</button></div>
+<div class="card"><h3>💳 Payment UPI</h3><input id="adminUpi" placeholder="UPI ID"><button onclick="saveUpi()">Update UPI</button></div>
+<div class="card"><h3>➕ Add Tournament</h3><input id="tName" placeholder="Tournament Name"><input id="tGame" placeholder="Game Name"><label>Match Date &amp; Time</label><input id="tTime" type="datetime-local"><input id="tFee" type="number" min="0" step="1" placeholder="Entry Fee Coins"><input id="tKill" type="number" min="0" step="1" placeholder="Per Kill Reward"><input id="tPrize" placeholder="Prize Details"><button onclick="addTournament()">Add Tournament</button></div>
+<div class="card"><h3>Manage Tournaments</h3><div id="adminTournaments"></div></div><div class="card"><h3>💰 Add Money Requests</h3><div id="moneyRequests"></div></div><div class="card"><h3>💸 Withdrawal Requests</h3><div id="withdrawRequests"></div></div><div class="card"><h3>👥 Manage Players / Coins / Delete Player ID</h3><div id="playersList"></div></div>
+<div class="card"><h3>🎯 Kill Reward</h3><input id="rewardPhone" placeholder="Player Mobile Number" inputmode="numeric"><input id="rewardKills" type="number" min="1" step="1" placeholder="Kills"><input id="rewardRate" type="number" min="0" step="1" placeholder="Coins Per Kill"><button onclick="killReward()">Give Kill Reward</button></div>
+</section>
+</main>
+<nav id="nav" class="hidden"><button onclick="showPage('home')">🏠 Home</button><button onclick="showPage('history')">📜 History</button><button onclick="showPage('profile')">👤 Profile</button><button onclick="showPage('wallet')">🪙 Wallet</button></nav>
+<script>
+"use strict";
+const DATA_KEY="betal_garena_data_v3",SESSION_KEY="betal_garena_session_v3";
+let db,current="",mode="register",admin=false,logoTaps=0,logoTimer=null;
+function freshData(){return {players:{},tournaments:[],moneyRequests:[],withdrawRequests:[],history:[],coinHistory:[],upi:"9305819305@paytm"}}
+function saveData(){try{localStorage.setItem(DATA_KEY,JSON.stringify(db));return true}catch(e){showMessage("डेटा सेव नहीं हुआ: "+e.message);return false}}
+function loadData(){
+ try{db=JSON.parse(localStorage.getItem(DATA_KEY))||freshData()}catch(e){db=freshData()}
+ const d=freshData();Object.keys(d).forEach(k=>{if(db[k]===undefined||db[k]===null)db[k]=d[k]});
+ if(!db.players||typeof db.players!=="object"||Array.isArray(db.players))db.players={};
+ ["tournaments","moneyRequests","withdrawRequests","history","coinHistory"].forEach(k=>{if(!Array.isArray(db[k]))db[k]=[]});
+ try{const s=localStorage.getItem(SESSION_KEY);if(s&&db.players[s])current=s}catch(e){}
+}
+function showMessage(m){const e=document.getElementById("authMessage");if(e)e.textContent=m}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setMode(next){mode=next;document.getElementById("nameArea").classList.toggle("hidden",mode!=="register");document.getElementById("confirmArea").classList.toggle("hidden",mode!=="register");document.getElementById("submitBtn").textContent=mode==="register"?"Create Account":"Login";showMessage(mode==="register"?"नाम, मोबाइल और पासवर्ड भरकर अकाउंट बनाएँ।":"अपने रजिस्टर्ड मोबाइल नंबर और पासवर्ड से Login करें।")}
+function addHistory(text,phone=current){db.history.unshift({text,phone,time:new Date().toLocaleString("en-IN")});db.history=db.history.slice(0,500)}
+function addCoinHistory(phone,amount,reason){db.coinHistory.unshift({phone,amount,reason,time:new Date().toLocaleString("en-IN")});db.coinHistory=db.coinHistory.slice(0,1000)}
+function changeCoins(phone,amount,reason){const p=db.players[phone];if(!p||!Number.isSafeInteger(amount)||!Number.isSafeInteger(p.coins+amount)||p.coins+amount<0)return false;p.coins+=amount;addCoinHistory(phone,amount,reason);return true}
+function loginPlayer(){
+ try{
+  const name=document.getElementById("playerName").value.trim(),phone=document.getElementById("phone").value.trim(),pass=document.getElementById("password").value,cp=document.getElementById("confirm").value;
+  if(!/^[0-9]{10}$/.test(phone)){showMessage("गलती: 10 अंकों का सही मोबाइल नंबर डालें।");return}
+  if(pass.length<4){showMessage("गलती: पासवर्ड कम से कम 4 अक्षर या अंक का हो।");return}
+  if(mode==="register"){
+   if(!name){showMessage("गलती: Player Name भरें।");return}
+   if(pass!==cp){showMessage("गलती: दोनों पासवर्ड एक जैसे नहीं हैं।");return}
+   if(db.players[phone]){showMessage("यह नंबर पहले से रजिस्टर्ड है। Login बटन दबाएँ।");return}
+   db.players[phone]={name,phone,pass,coins:100,joined:new Date().toLocaleDateString("en-IN")};addCoinHistory(phone,100,"Welcome Bonus");addHistory("Account created; 100 Welcome Coins",phone);
+   if(!saveData()){delete db.players[phone];return}
+   alert("Account बन गया! 100 Welcome Coins मिले।")
+  }else{
+   const p=db.players[phone];if(!p){showMessage("यह नंबर रजिस्टर्ड नहीं है। पहले Create Account करें।");return}
+   if(String(p.pass)!==pass){showMessage("गलत पासवर्ड। दोबारा जाँचें।");return}
+  }
+  current=phone;try{localStorage.setItem(SESSION_KEY,phone)}catch(e){showMessage("Login हुआ, लेकिन session सेव नहीं हो सका।")}
+  document.getElementById("password").value="";document.getElementById("confirm").value="";showPage("home")
+ }catch(e){showMessage("JavaScript Error: "+e.message);alert("Login Error: "+e.message)}
+}
+function logout(){current="";try{localStorage.removeItem(SESSION_KEY)}catch(e){}setMode("login");showPage("login")}
+function showPage(page){if(page==="admin"&&!admin)return;if(["home","wallet","history","profile"].includes(page)&&!current)page="login";["login","home","wallet","history","profile","admin"].forEach(p=>document.getElementById(p+"Page").classList.toggle("hidden",p!==page));document.getElementById("nav").classList.toggle("hidden",!current||page==="login"||page==="admin");renderAll()}
+function logoTap(){logoTaps++;clearTimeout(logoTimer);logoTimer=setTimeout(()=>logoTaps=0,1800);if(logoTaps>=5){logoTaps=0;const pw=prompt("Admin Password:");if(pw==="Manish@930581"){admin=true;showPage("admin")}else if(pw!==null)alert("गलत Admin Password")}}
+function closeAdmin(){admin=false;showPage(current?"home":"login")}
+function saveUpi(){const v=document.getElementById("adminUpi").value.trim();if(!/^[^@\s]+@[^@\s]+$/.test(v)){alert("सही UPI ID डालें।");return}db.upi=v;if(saveData()){renderAll();alert("UPI ID अपडेट हुई।")}}
+function addTournament(){
+ const name=document.getElementById("tName").value.trim(),game=document.getElementById("tGame").value.trim(),time=document.getElementById("tTime").value,fee=Number(document.getElementById("tFee").value),kill=Number(document.getElementById("tKill").value),prize=document.getElementById("tPrize").value.trim();
+ if(!name||!game||!time||document.getElementById("tFee").value===""||document.getElementById("tKill").value===""||!Number.isSafeInteger(fee)||fee<0||!Number.isSafeInteger(kill)||kill<0){alert("Tournament की सभी जानकारी सही भरें।");return}
+ db.tournaments.unshift({id:Date.now(),name,game,time,fee,kill,prize,players:[],room:"",roomPass:""});addHistory("Tournament added: "+name,"ADMIN");if(!saveData())return;renderAll();["tName","tGame","tTime","tFee","tKill","tPrize"].forEach(id=>document.getElementById(id).value="");alert("Tournament जोड़ दिया गया।")
+}
+function deleteTournament(id){if(!confirm("Tournament हटाना है?"))return;db.tournaments=db.tournaments.filter(t=>t.id!==id);if(saveData())renderAll()}
+function setRoom(id){const t=db.tournaments.find(t=>t.id===id);if(!t)return;const room=prompt("Room ID:",t.room||"");if(room===null)return;const rp=prompt("Room Password:",t.roomPass||"");if(rp===null)return;t.room=room.trim();t.roomPass=rp.trim();if(saveData())renderAll()}
+function joinTournament(id){
+ const t=db.tournaments.find(t=>t.id===id),p=db.players[current];if(!t||!p)return;
+ if(t.players.some(x=>x.phone===current)){alert("आप पहले से Join हैं।");return}
+ if(p.coins<t.fee){alert("Coins कम हैं।");return}
+ const gn=prompt("In-Game Name:");if(!gn||!gn.trim())return;const uid=prompt("Game UID:");if(!uid||!uid.trim())return;if(!confirm("Join करने पर "+t.fee+" Coins कटेंगे। जारी रखें?"))return;
+ if(!changeCoins(current,-t.fee,"Tournament entry: "+t.name))return;t.players.push({phone:current,gameName:gn.trim(),uid:uid.trim()});addHistory("Tournament joined: "+t.name);if(saveData()){renderAll();alert("Tournament Join हो गया।")}
+}
+function addMoneyRequest(){
+ const amount=Number(document.getElementById("amount").value),utr=document.getElementById("utr").value.trim();
+ if(!Number.isSafeInteger(amount)||amount<=0||!utr){alert("Amount और UTR/reference भरें।");return}
+ if(db.moneyRequests.some(r=>r.phone===current&&r.utr.toLowerCase()===utr.toLowerCase())){alert("यह UTR पहले जमा किया जा चुका है।");return}
+ db.moneyRequests.unshift({id:Date.now(),phone:current,amount,utr,status:"Pending"});addHistory("Money request submitted ₹"+amount);if(saveData()){renderAll();alert("Request भेजी गई। भुगतान को Admin को सत्यापित करना होगा; Coins अभी नहीं मिले हैं।");document.getElementById("amount").value="";document.getElementById("utr").value=""}
+}
+function decideMoney(id,approve){const r=db.moneyRequests.find(r=>r.id===id);if(!r||r.status!=="Pending")return;if(approve){if(!db.players[r.phone]){alert("Player नहीं मिला।");return}if(!changeCoins(r.phone,r.amount,"Approved add money request"))return;r.status="Approved"}else r.status="Rejected";if(saveData())renderAll()}
+function withdrawRequest(){
+ const amount=Number(document.getElementById("withdrawAmount").value),upi=document.getElementById("withdrawUpi").value.trim();
+ if(!Number.isSafeInteger(amount)||amount<=0||!/^[^@\s]+@[^@\s]+$/.test(upi)){alert("Coins और सही UPI ID डालें।");return}
+ if(!db.players[current]||db.players[current].coins<amount){alert("पर्याप्त Coins नहीं हैं।");return}
+ if(!confirm(amount+" Coins की Withdrawal Request भेजें?"))return;
+ if(!changeCoins(current,-amount,"Withdrawal pending"))return;db.withdrawRequests.unshift({id:Date.now(),phone:current,amount,upi,status:"Pending"});if(saveData()){renderAll();alert("Withdrawal Request भेजी गई। अभी भुगतान नहीं हुआ है।")}
+}
+function decideWithdraw(id,approve){const r=db.withdrawRequests.find(r=>r.id===id);if(!r||r.status!=="Pending")return;if(approve){r.status="Approved";alert("Approved मार्क हुआ। पैसे अलग से भेजने होंगे।")}else{r.status="Rejected";if(db.players[r.phone])changeCoins(r.phone,r.amount,"Withdrawal rejected refund")}if(saveData())renderAll()}
+function managePlayer(phone){const p=db.players[phone];if(!p)return;const v=prompt("Coins जोड़ने के लिए positive, घटाने के लिए negative नंबर डालें:","10");if(v===null||v.trim()==="")return;const n=Number(v);if(!Number.isSafeInteger(n)||n===0){alert("सही पूरा नंबर डालें।");return}if(!changeCoins(phone,n,"Admin coin adjustment")){alert("Coins update नहीं हुए।");return}if(saveData()){renderAll();alert("Coins अपडेट हो गए।")}}
+function deletePlayer(phone){if(!db.players[phone])return;if(!confirm("Player ID हटानी है?"))return;if(!confirm("आखिरी पुष्टि: अकाउंट हमेशा के लिए हटाएँ?"))return;delete db.players[phone];db.tournaments.forEach(t=>t.players=t.players.filter(p=>p.phone!==phone));db.moneyRequests.forEach(r=>{if(r.phone===phone&&r.status==="Pending")r.status="Cancelled"});db.withdrawRequests.forEach(r=>{if(r.phone===phone&&r.status==="Pending")r.status="Cancelled"});if(current===phone){current="";try{localStorage.removeItem(SESSION_KEY)}catch(e){}}if(saveData()){renderAll();alert("Player ID हटा दी गई।")}}
+function killReward(){const phone=document.getElementById("rewardPhone").value.trim(),kills=Number(document.getElementById("rewardKills").value),rate=Number(document.getElementById("rewardRate").value);if(!db.players[phone]||!Number.isSafeInteger(kills)||kills<1||!Number.isSafeInteger(rate)||rate<0){alert("Player, kills और rate सही भरें।");return}const total=kills*rate;if(!Number.isSafeInteger(total)||!changeCoins(phone,total,"Kill reward: "+kills+" kills")){alert("Reward नहीं दिया जा सका।");return}if(saveData()){renderAll();alert(total+" Coins दिए गए।")}}
+function renderTournament(t,isAdmin){
+ if(!Array.isArray(t.players))t.players=[];
+ let h='<div class="item"><h3>'+esc(t.name)+'</h3><p>Game: '+esc(t.game)+'</p><p>Match: '+esc(t.time)+'</p><p>Entry Fee: '+Number(t.fee||0)+' Coins</p><p>Per Kill: '+Number(t.kill||0)+' Coins</p><p>Prize: '+esc(t.prize||"TBA")+'</p><p>Players Joined: '+t.players.length+'</p>';
+ if(isAdmin){h+='<button onclick="setRoom('+Number(t.id)+')">Set Room Details</button><button onclick="viewJoined('+Number(t.id)+')">View Joined Players</button><button class="danger" onclick="deleteTournament('+Number(t.id)+')">Delete Tournament</button>'}
+ else{if(t.room)h+='<div class="status">Room ID: '+esc(t.room)+'<br>Room Password: '+esc(t.roomPass||"Not set")+'</div>';h+='<button onclick="joinTournament('+Number(t.id)+')">Join Tournament</button>'}
+ return h+'</div>'
+}
+function viewJoined(id){const t=db.tournaments.find(x=>x.id===id);if(!t)return;alert(t.players.length?t.players.map(p=>p.gameName+" | UID: "+p.uid+" | Mobile: "+p.phone).join("\\n"):"अभी कोई खिलाड़ी Join नहीं हुआ।")}
+function renderAll(){
+ const p=db.players[current];document.getElementById("balance").textContent=p?Number(p.coins||0)+" Coins":"0 Coins";
+ document.getElementById("profileInfo").innerHTML=p?'<p>Name: '+esc(p.name)+'</p><p>Mobile: '+esc(p.phone)+'</p><p>Joined: '+esc(p.joined)+'</p><p>Coins: '+Number(p.coins||0)+'</p>':'<p>Login करें।</p>';
+ document.getElementById("upiText").textContent="UPI ID: "+db.upi;document.getElementById("adminUpi").value=db.upi;
+ const uri="upi://pay?pa="+encodeURIComponent(db.upi)+"&pn="+encodeURIComponent("Betal Garena")+"&cu=INR";
+ document.getElementById("qrImage").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(uri);
+ document.getElementById("tournamentList").innerHTML=db.tournaments.length?db.tournaments.map(t=>renderTournament(t,false)).join(""):"<p>अभी कोई Tournament नहीं है।</p>";
+ document.getElementById("adminTournaments").innerHTML=db.tournaments.length?db.tournaments.map(t=>renderTournament(t,true)).join(""):"<p>कोई Tournament नहीं है।</p>";
+ const hist=db.history.filter(x=>x.phone===current);document.getElementById("historyList").innerHTML=hist.length?hist.map(x=>'<div class="item">'+esc(x.text)+'<p class="small">'+esc(x.time||"")+'</p></div>').join(""):"<p>History खाली है।</p>";
+ const coins=db.coinHistory.filter(x=>x.phone===current);document.getElementById("coinHistory").innerHTML=coins.length?coins.map(x=>'<div class="item">'+esc(x.reason)+'<p class="small">'+Number(x.amount)+' Coins • '+esc(x.time||"")+'</p></div>').join(""):"<p>कोई Coin History नहीं।</p>";
+ const mine=[...db.moneyRequests.map(r=>({...r,type:"Add Money"})),...db.withdrawRequests.map(r=>({...r,type:"Withdrawal"}))].filter(r=>r.phone===current);
+ document.getElementById("myRequests").innerHTML=mine.length?mine.map(r=>'<div class="item">'+esc(r.type)+' • '+Number(r.amount)+' • '+esc(r.status)+'</div>').join(""):"<p>कोई Request नहीं।</p>";
+ document.getElementById("moneyRequests").innerHTML=db.moneyRequests.length?db.moneyRequests.map(r=>'<div class="item">₹'+Number(r.amount)+' • '+esc(r.phone)+'<br>UTR: '+esc(r.utr)+'<br>Status: '+esc(r.status)+(r.status==="Pending"?'<button class="green" onclick=
