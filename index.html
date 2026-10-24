@@ -191,8 +191,9 @@ function loginPlayer(){
 }
 function logout(){current="";try{localStorage.removeItem(SESSION_KEY)}catch(e){}setMode("login");showPage("login")}
 function shareApp(){
-  const url = "https://betalgarena.netlify.app/";
-  const shareData = {title:"BETAL GARENA", text:"🎮 BETAL GARENA - Play • Compete • Win. ऐप/वेबसाइट यहाँ खोलें:", url};
+  // Share the same Google Drive APK download link used by the Download APK button.
+  const url = "https://drive.google.com/uc?export=download&id=1Z9ZeeoD2SntbgGkNBpakcWbtquI_tY-k";
+  const shareData = {title:"BETAL GARENA APK", text:"🎮 BETAL GARENA ऐप डाउनलोड करने के लिए इस लिंक पर क्लिक करें:", url};
   if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
     navigator.share(shareData).catch(err=>{ if(err && err.name!=="AbortError") shareFallback(url); });
   } else {
@@ -209,7 +210,7 @@ function shareFallback(url){
   }
 }
 function downloadApk(){
-  const url="https://drive.google.com/uc?export=download&id=148bUv3ixkrxjlVQdsmfkEsNW0VaOLfnk";
+  const url="https://drive.google.com/uc?export=download&id=1Z9ZeeoD2SntbgGkNBpakcWbtquI_tY-k";
   window.open(url,"_blank","noopener,noreferrer");
 }
 // AppGeyser WebView की पहचान के लिए सामान्य संकेत; वेबसाइट पर दोनों बटन दिखेंगे।
