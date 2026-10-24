@@ -26,14 +26,13 @@ input,select{width:100%;padding:13px;margin:7px 0;background:#0c1427;color:white
 .green{background:#56e39f;color:#06111d}
 .yellow{background:#ffd54a;color:#111}
 .item{border-bottom:1px solid #34415b;padding:12px 0;overflow-wrap:anywhere}
-nav{position:fixed;bottom:66px;left:0;width:100%;display:flex;background:#151d35;padding:7px 2px;z-index:5}
+nav{position:relative;top:auto;bottom:auto;left:auto;width:100%;display:flex;background:#151d35;padding:7px 2px;z-index:5;border-bottom:1px solid #00e5ff;box-shadow:0 4px 14px #0008;margin:0}
 nav button{flex:1;width:auto;font-size:12px;padding:11px 2px;margin:0 2px}
-main{padding-bottom:150px}
+main{padding-bottom:170px}
 #appActionBar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:10px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#101a2d;border-top:1px solid #2b405e;box-shadow:0 -5px 20px #0006}
 #appActionBar button{flex:1;margin:0;min-width:0;font-size:14px;padding:13px 8px;border-radius:10px}
 #downloadApkBtn{background:#56e39f;color:#071a15}
 #shareAppBtn{background:#00c8e8;color:#06111d}
-body.in-app nav{bottom:66px}
 .upibox{text-align:center;padding:12px;border:1px dashed #00e5ff;border-radius:10px;background:#0c1427}
 .qr{width:180px;height:180px;object-fit:contain;background:white;padding:4px;border-radius:8px}
 .status{padding:10px;border-radius:8px;background:#0c1427;margin:8px 0;overflow-wrap:anywhere}
@@ -45,6 +44,7 @@ body.in-app nav{bottom:66px}
 </head>
 <body>
 <header><h2 onclick="logoTap()">⚡ BETAL GARENA</h2><p>Play • Compete • Win</p></header>
+<nav id="nav" class="hidden"><button onclick="showPage('home')">🏠 Home</button><button onclick="showPage('history')">📜 History</button><button onclick="showPage('profile')">👤 Profile</button><button onclick="showPage('wallet')">🪙 Wallet</button></nav>
 <main>
 <section id="loginPage" class="card">
 <h3>Player Login / Register</h3>
@@ -80,7 +80,6 @@ body.in-app nav{bottom:66px}
 <div class="card"><h3>🎯 Kill Reward</h3><input id="rewardPhone" placeholder="Player Mobile Number" inputmode="numeric"><input id="rewardKills" type="number" min="1" step="1" placeholder="Kills"><input id="rewardRate" type="number" min="0" step="1" placeholder="Coins Per Kill"><button onclick="killReward()">Give Kill Reward</button></div>
 </section>
 </main>
-<nav id="nav" class="hidden"><button onclick="showPage('home')">🏠 Home</button><button onclick="showPage('history')">📜 History</button><button onclick="showPage('profile')">👤 Profile</button><button onclick="showPage('wallet')">🪙 Wallet</button></nav>
 <div id="appActionBar" aria-label="App actions"><button id="downloadApkBtn" type="button" onclick="downloadApk()">⬇ DOWNLOAD APK</button><button id="shareAppBtn" type="button" onclick="shareApp()">↗ SHARE APP</button></div>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
